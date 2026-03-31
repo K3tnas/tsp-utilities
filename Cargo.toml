@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 plotters = "0.3.7"
 rand = "0.10.0"
+rayon = "1.11.0"
 tsplib = "0.1.0"
