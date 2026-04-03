@@ -1,3 +1,5 @@
+use rand::RngExt;
+
 use crate::tour::Tour;
 
 pub type NeighbourhoodFunction = dyn for<'a> Fn(&Tour<'a>) -> Option<Tour<'a>>;
@@ -63,7 +65,7 @@ pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
 }
 
 #[allow(dead_code)]
-fn transpose<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
+pub fn transpose<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
     let n = tour.permutation.len();
     let perm = &tour.permutation;
     let problem = tour.problem;
@@ -118,6 +120,52 @@ fn transpose<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
             permutation,
             length,
             problem,
+        }
+    })
+}
+
+pub fn invert_with_selection<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
+    let n = tour.permutation.len();
+    let perm = &tour.permutation;
+    let mut rng = rand::rng();
+
+    let mut best_ij = None;
+    let mut best_delta = 0.0;
+    let neighbours: Vec<(usize, usize)> = (0..n)
+        .map(|_| {
+            let i = rng.random_range(0..n - 1);
+            let j = rng.random_range(i + 1..n);
+            (i, j)
+        })
+        .collect();
+
+    for (i, j) in neighbours {
+        if i == 0 && j == n - 1 {
+            continue;
+        }
+
+        let a = perm[(n + i - 1) % n];
+        let b = perm[i];
+        let c = perm[j];
+        let d = perm[(j + 1) % n];
+
+        let before = tour.problem.dist(a, b) + tour.problem.dist(c, d);
+        let after = tour.problem.dist(a, c) + tour.problem.dist(b, d);
+        let delta = after - before;
+
+        if delta < best_delta {
+            best_delta = delta;
+            best_ij = Some((i, j));
+        }
+    }
+
+    best_ij.map(|(i, j)| {
+        let mut permutation = perm.to_vec();
+        permutation[i..=j].reverse();
+        Tour {
+            permutation,
+            length: tour.length + best_delta,
+            problem: tour.problem,
         }
     })
 }

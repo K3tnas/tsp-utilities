@@ -26,8 +26,8 @@ impl Hemisphere {
     pub fn signs(&self) -> (f64, f64) {
         match self {
             Hemisphere::NorthEast => (1.0, 1.0),
-            Hemisphere::NorthWest => (-1.0, 1.0),
-            Hemisphere::SouthEast => (1.0, -1.0),
+            Hemisphere::NorthWest => (1.0, -1.0),
+            Hemisphere::SouthEast => (-1.0, 1.0),
             Hemisphere::SouthWest => (-1.0, -1.0),
         }
     }
