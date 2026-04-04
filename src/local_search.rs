@@ -1,18 +1,23 @@
-use std::rc::Rc;
-
 use crate::tour::Tour;
 
-pub type NeighbourhoodFunction = dyn for<'a> Fn(&mut Tour<'a>) -> bool;
-
 impl<'a> Tour<'a> {
-    pub fn local_search(&mut self, optimize: &NeighbourhoodFunction) {
-        while optimize(self) {}
+    pub fn local_search<F>(&mut self, neigh_fun: F)
+    where
+        F: Fn(&Tour<'a>) -> Option<Tour<'a>>,
+    {
+        while let Some(improved) = neigh_fun(self) {
+            *self = improved;
+        }
     }
 
-    pub fn local_search_with_counting(&mut self, optimize: &NeighbourhoodFunction) -> usize {
+    pub fn local_search_with_counting<F>(&mut self, neigh_fun: F) -> usize
+    where
+        F: Fn(&Tour<'a>) -> Option<Tour<'a>>,
+    {
         let mut n = 0;
 
-        while optimize(self) {
+        while let Some(improved) = neigh_fun(self) {
+            *self = improved;
             n += 1;
         }
 
@@ -21,7 +26,7 @@ impl<'a> Tour<'a> {
 }
 
 #[allow(dead_code)]
-pub fn invert<'a>(tour: &mut Tour<'a>) -> bool {
+pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
     let n = tour.permutation.len();
     let perm = &tour.permutation;
     let problem = tour.problem;
@@ -61,14 +66,18 @@ pub fn invert<'a>(tour: &mut Tour<'a>) -> bool {
             }
         }
     }
+    best_ij.map(|(i, j)| {
+        let mut permutation = perm.clone();
+        permutation[i..=j].reverse();
 
-    if let Some((i, j)) = best_ij {
-        Rc::get_mut(&mut tour.permutation).unwrap()[i..=j].reverse();
-        tour.length += best_delta;
-        return true;
-    }
+        let length = tour.length + best_delta;
 
-    false
+        Tour {
+            permutation,
+            length,
+            problem,
+        }
+    })
 }
 
 // #[allow(dead_code)]

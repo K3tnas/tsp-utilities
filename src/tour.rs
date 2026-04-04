@@ -2,7 +2,6 @@ use plotters::drawing::IntoDrawingArea;
 use plotters::style::Color;
 use std::error::Error;
 use std::path::PathBuf;
-use std::rc::Rc;
 
 use plotters::chart::ChartBuilder;
 use plotters::prelude::BitMapBackend;
@@ -17,21 +16,17 @@ use crate::TspProblem;
 use crate::compute_length;
 
 pub struct Tour<'a> {
-    pub permutation: Rc<[usize]>,
+    pub permutation: Box<[usize]>,
     pub length: f64,
     pub problem: &'a TspProblem,
 }
 
 impl<'a> Tour<'a> {
     pub fn new_rand_tour<R: rand::Rng>(problem: &'a TspProblem, rng: &mut R) -> Self {
-        let mut permutation: Rc<[usize]> = (0..problem.cities.len()).collect();
+        let mut permutation: Vec<usize> = (1..=problem.cities.len()).collect();
+        permutation.shuffle(rng);
 
-        unsafe {
-            Rc::get_mut(&mut permutation)
-                .unwrap_unchecked()
-                .shuffle(rng);
-        }
-
+        let permutation: Box<[usize]> = permutation.into();
         let length = compute_length(&permutation, problem);
 
         Self {
