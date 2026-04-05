@@ -20,7 +20,7 @@ impl TspProblem {
             })
             .collect();
 
-        let cities: Box<[(f64, f64)]> = cities.clone().into();
+        let cities: Box<[(f64, f64)]> = cities.into();
 
         TspProblem {
             cities,
