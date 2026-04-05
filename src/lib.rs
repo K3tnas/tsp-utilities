@@ -12,7 +12,6 @@ pub use local_search::*;
 pub mod hemisphere;
 pub use hemisphere::Hemisphere;
 
-
 pub trait TspUtilities {
     fn get_region_name(&self) -> Option<String>;
     fn get_2d_points(&self) -> Option<Vec<(f64, f64)>>;
@@ -61,9 +60,9 @@ pub fn compute_length(permutation: &[usize], problem: &TspProblem) -> f64 {
     let mut distance = 0.0f64;
 
     for i in 0..n - 1 {
-        distance += problem.dist(permutation[i], permutation[i + 1]);
+        distance += problem.dist_matrix[permutation[i]][permutation[i + 1]];
     }
 
-    distance += problem.dist(permutation[n - 1], permutation[0]);
+    distance += problem.dist_matrix[permutation[n - 1]][permutation[0]];
     distance
 }

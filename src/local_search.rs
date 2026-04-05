@@ -29,7 +29,7 @@ impl<'a> Tour<'a> {
 pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
     let n = tour.permutation.len();
     let perm = &tour.permutation;
-    let problem = tour.problem;
+    let dist = &tour.context.dist_matrix;
 
     let mut best_ij: Option<(usize, usize)> = None;
     let mut best_delta = 0.0;
@@ -40,8 +40,7 @@ pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
         let c = perm[j];
         let d = perm[(j + 1) % n];
 
-        let delta =
-            (problem.dist(a, c) + problem.dist(b, d)) - (problem.dist(a, b) + problem.dist(c, d));
+        let delta = (dist[a][c] + dist[b][d]) - (dist[a][b] + dist[c][d]);
 
         if delta < best_delta {
             best_delta = delta;
@@ -57,8 +56,7 @@ pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
             let c = perm[j];
             let d = perm[(j + 1) % n];
 
-            let delta = (problem.dist(a, c) + problem.dist(b, d))
-                - (problem.dist(a, b) + problem.dist(c, d));
+            let delta = (dist[a][c] + dist[b][d]) - (dist[a][b] + dist[c][d]);
 
             if delta < best_delta {
                 best_delta = delta;
@@ -66,6 +64,7 @@ pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
             }
         }
     }
+
     best_ij.map(|(i, j)| {
         let mut permutation = perm.clone();
         permutation[i..=j].reverse();
@@ -75,7 +74,7 @@ pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
         Tour {
             permutation,
             length,
-            problem,
+            context: tour.context,
         }
     })
 }

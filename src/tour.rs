@@ -18,26 +18,25 @@ use crate::compute_length;
 pub struct Tour<'a> {
     pub permutation: Box<[usize]>,
     pub length: f64,
-    pub problem: &'a TspProblem,
+    pub context: &'a TspProblem,
 }
 
 impl<'a> Tour<'a> {
     pub fn new_rand_tour<R: rand::Rng>(problem: &'a TspProblem, rng: &mut R) -> Self {
-        let mut permutation: Vec<usize> = (1..=problem.cities.len()).collect();
+        let mut permutation: Box<[usize]> = (0..problem.cities.len()).collect();
         permutation.shuffle(rng);
 
-        let permutation: Box<[usize]> = permutation.into();
         let length = compute_length(&permutation, problem);
 
         Self {
-            problem,
+            context: problem,
             permutation,
             length,
         }
     }
 
     pub fn plot_tour(&self, dirpath: &str, filename: &str) -> Result<(), Box<dyn Error>> {
-        let cities: Vec<(f64, f64)> = self.problem.cities.iter().map(|(x, y)| (*y, *x)).collect();
+        let cities: Vec<(f64, f64)> = self.context.cities.iter().map(|(x, y)| (*y, *x)).collect();
 
         if cities.is_empty() {
             return Err("No cities to plot".into());

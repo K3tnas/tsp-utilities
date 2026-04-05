@@ -1,31 +1,30 @@
 pub struct TspProblem {
-    pub cities: Vec<(f64, f64)>,
-    dist_matrix: Vec<f64>,
+    pub cities: Box<[(f64, f64)]>,
+    pub dist_matrix: Box<[Box<[f64]>]>,
 }
 
 impl TspProblem {
-    pub fn new(cities: Vec<(f64, f64)>) -> Self {
+    pub fn new(cities: &[(f64, f64)]) -> Self {
         let n = cities.len();
-        let mut dist_matrix = Vec::with_capacity(n * n);
+        let dist_matrix: Box<[Box<[f64]>]> = (0..n)
+            .map(|i| {
+                (0..n)
+                    .map(|j| {
+                        let (x1, y1) = cities[i];
+                        let (x2, y2) = cities[j];
+                        let dx = x1 - x2;
+                        let dy = y1 - y2;
+                        (dx * dx + dy * dy).sqrt()
+                    })
+                    .collect()
+            })
+            .collect();
 
-        for i in 0..n {
-            for j in 0..n {
-                let (x1, y1) = cities[i];
-                let (x2, y2) = cities[j];
-                let dx = x1 - x2;
-                let dy = y1 - y2;
-                dist_matrix.push((dx * dx + dy * dy).sqrt());
-            }
-        }
+        let cities: Box<[(f64, f64)]> = cities.clone().into();
 
         TspProblem {
             cities,
             dist_matrix,
         }
-    }
-
-    #[inline(always)]
-    pub fn dist(&self, i: usize, j: usize) -> f64 {
-        self.dist_matrix[(self.cities.len() * i) + j]
     }
 }
