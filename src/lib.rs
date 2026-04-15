@@ -57,7 +57,7 @@ pub fn get_instances(path: &str) -> io::Result<Vec<tsplib::Instance>> {
 
 pub fn compute_length(permutation: &[usize], problem: &TspProblem) -> f64 {
     let n = permutation.len();
-    let mut distance = 0.0f64;
+    let mut distance = 0.0;
 
     for i in 0..n - 1 {
         distance += problem.dist_matrix[permutation[i]][permutation[i + 1]];

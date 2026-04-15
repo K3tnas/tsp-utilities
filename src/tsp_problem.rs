@@ -14,7 +14,7 @@ impl TspProblem {
                         let (x2, y2) = cities[j];
                         let dx = x1 - x2;
                         let dy = y1 - y2;
-                        (dx * dx + dy * dy).sqrt()
+                        (dx * dx + dy * dy).sqrt().round()
                     })
                     .collect()
             })
