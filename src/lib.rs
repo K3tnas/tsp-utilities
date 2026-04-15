@@ -45,10 +45,10 @@ pub fn get_instances(path: &str) -> io::Result<Vec<tsplib::Instance>> {
         let entry = entry?;
         let path = entry.path();
 
-        if path.is_file() {
-            if let Some("tsp") = path.extension().and_then(|ext| ext.to_str()) {
-                files.push(tsplib::read(&path)?);
-            }
+        if path.is_file()
+            && let Some("tsp") = path.extension().and_then(|ext| ext.to_str())
+        {
+            files.push(tsplib::read(&path)?);
         }
     }
 

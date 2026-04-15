@@ -12,8 +12,8 @@ use plotters::style::RED;
 use plotters::style::WHITE;
 use rand::seq::SliceRandom;
 
-use crate::TspProblem;
 use crate::compute_length;
+use crate::TspProblem;
 
 pub struct Tour<'a> {
     pub permutation: Box<[usize]>,

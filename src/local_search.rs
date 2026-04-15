@@ -79,6 +79,61 @@ pub fn invert<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
     })
 }
 
+#[allow(dead_code)]
+pub fn transpose<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
+    let mut permutation = tour.permutation.clone();
+    let n = permutation.len();
+    let dist = &tour.context.dist_matrix;
+
+    let mut best_ij = None;
+    let mut best_delta = 0.0;
+
+    for i in 0..n {
+        let a = permutation[(n + i - 1) % n];
+        let b = permutation[i];
+        let c = permutation[(n + i + 1) % n];
+
+        for j in (i + 1)..n {
+            let d = permutation[(n + j - 1) % n];
+            let e = permutation[j];
+            let f = permutation[(j + 1) % n];
+
+            let before: f64;
+            let after: f64;
+
+            if i == 0 && j == n - 1 {
+                before = dist[d][e] + dist[b][c];
+                after = dist[d][b] + dist[e][c];
+            } else if j == i + 1 {
+                before = dist[a][b] + dist[e][f];
+                after = dist[a][e] + dist[b][f];
+            } else {
+                before = dist[a][b] + dist[b][c] + dist[d][e] + dist[e][f];
+
+                after = dist[a][e] + dist[e][c] + dist[d][b] + dist[b][f];
+            }
+
+            let delta = after - before;
+
+            if delta < best_delta {
+                best_delta = delta;
+                best_ij = Some((i, j));
+            }
+        }
+    }
+
+    best_ij.map(|(i, j)| {
+        let length = tour.length + best_delta;
+        permutation.swap(i, j);
+
+        Tour {
+            permutation,
+            length,
+            context: tour.context,
+        }
+    })
+}
+
 // #[allow(dead_code)]
 // pub fn transpose<'a>(tour: &Tour<'a>) -> Option<Tour<'a>> {
 //     let n = tour.permutation.len();
